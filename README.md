@@ -10,5 +10,6 @@ Purpose is to learn more about pygame, hande mouse events, start using object or
 
 
 #6. Optional, add obstacles into game
-#7. Optional make it possible to win through some goal?
+#7. Optional make it possible to win through some goal?(Pool game?)
 #8. Optional, add new windows after winning/losing?
+#9. Add Buttons to control mass/speed etc. Link pygame together with PyQt?
