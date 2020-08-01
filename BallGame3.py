@@ -46,10 +46,10 @@ class Ball(pygame.sprite.Sprite):
         self.coords = self.coords + self.speed*self.veldir
         #self.rect.move_ip(self.speed*self.veldir)
         
-        if self.coords[0]-self.radius < 0 or self.coords[0]+self.radius > SCREEN_WIDTH:
+        if self.coords[0]-self.radius < 0 or self.coords[0]+self.radius >= SCREEN_WIDTH:
             self.veldir[0] = -self.veldir[0]     
 
-        if self.coords[1]-self.radius < 0 or self.coords[1]+self.radius > SCREEN_HEIGHT:
+        if self.coords[1]-self.radius < 0 or self.coords[1]+self.radius >= SCREEN_HEIGHT:
             self.veldir[1] = -self.veldir[1]
         
         pygame.draw.circle(screen, [0,0,255], [int(np.round(self.coords)[0]),int(np.round(self.coords)[1])], self.radius)
