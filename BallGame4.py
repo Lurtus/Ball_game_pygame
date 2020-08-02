@@ -49,8 +49,8 @@ class Ball(pygame.sprite.Sprite):
     def update(self):
        
 
-        vel = self.speed*self.veldir
-        self.rect.move_ip(vel)
+        vel = self.speed*self.veldir 
+        self.rect.move_ip(vel) #Kanske blir avrundingsfel här? Bollar hamnar utanför skärmen ibland.
         self.coords = self.coords + vel
 
         if self.coords[0]-self.radius < 0 or self.coords[0]+self.radius >= SCREEN_WIDTH:
@@ -65,6 +65,7 @@ class Ball(pygame.sprite.Sprite):
 
 #Function which computes the new velocities of two balls after collision
 #Not to self, should be possible to generalize if multiple collisions occurs simultanously.
+#Only works for m1=m2 and when d = 0 for some reason. (This case is quite easy to implement by cheating...)
 def collision(ball1, ball2,d):
     
     #Find collision vector, defined from center of ball2 to collision point
@@ -74,14 +75,18 @@ def collision(ball1, ball2,d):
     #Solve second degree equation to compute magnitude of collision force
     v1 = ball1.speed*ball1.veldir
     v2 = ball2.speed*ball2.veldir
+
+    relv = v2-v1
+    speed_relv = np.sqrt(relv[0]**2+relv[1]**2)
+    di = speed_relv*d
     
     sp1 = v1[0]*coll_dir[0]+v1[1]*coll_dir[1]
     sp2 = -v2[0]*coll_dir[0]-v2[1]*coll_dir[1]
     
     p = (ball1.mass*sp1 + ball2.mass*sp2)
     
-    k1 = -p/2 + 0.5*np.sqrt(p**2+4*d)
-    k2 = -p/2 - 0.5*np.sqrt(p**2+4*d)
+    k1 = -p/2 + 0.5*np.sqrt(p**2+4*di)
+    k2 = -p/2 - 0.5*np.sqrt(p**2+4*di)
     
     
     if p < 0.0:
@@ -94,8 +99,16 @@ def collision(ball1, ball2,d):
     v1_new = v1+k*coll_dir
     v2_new = v2-k*coll_dir
 
-    ball1.speed = np.sqrt(v1_new[0]**2 + v1_new[1]**2 )
-    ball2.speed = np.sqrt(v2_new[0]**2 + v2_new[1]**2 )
+    print(ball1.speed)
+    print(ball2.speed)
+
+
+    ball1.speed = np.sqrt(v1_new[0]**2 + v1_new[1]**2 ) #Should be conserved when d = 0
+    ball2.speed = np.sqrt(v2_new[0]**2 + v2_new[1]**2 ) # should be conserved when d = 0
+    
+    print(ball1.speed)
+    print(ball2.speed)
+
     
     ball1.veldir = v1_new/ball1.speed
     ball2.veldir = v2_new/ball2.speed    
@@ -103,9 +116,9 @@ def collision(ball1, ball2,d):
     #Positions should be updated such that new position is outside the balls 
     #(what if this position collides whith another ball?) This will also increase the speed momentarily...
     
-    print(k1)
-    print(k2)
-    print(p)
+#    print(k1)
+#    print(k2)
+#    print(p)
     print('--------')
     #pdb.set_trace()
     
