@@ -10,6 +10,7 @@ import pygame
 import pdb
 import random
 import numpy as np
+import time as tm
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
@@ -29,7 +30,7 @@ radius = 25
 #Classess:
 class Ball(pygame.sprite.Sprite):
     
-    def __init__(self, coords,radius):
+    def __init__(self, coords,radius, nbr):
         super(Ball,self).__init__()
         self.surf = pygame.Surface([2*radius,2*radius])
         self.surf.fill([255,255,255])
@@ -41,10 +42,17 @@ class Ball(pygame.sprite.Sprite):
         self.mass = 1
         
         #self.speed = random.randint(5,20)
-        self.speed = 10
+        self.speed = 5
         theta = random.uniform(0,np.pi*2)
-        #theta = 0
+                
+#        if nbr == 0:
+#            theta = 0
+#        else:
+#            theta = np.pi/2
+        
         self.veldir = np.array([np.cos(theta), np.sin(theta)])
+        
+        self.nbr = nbr
         
     def update(self):
        
@@ -85,30 +93,116 @@ def collision(ball1, ball2,d):
     m1 = ball1.mass
     m2 = ball2.mass
     
-    di = speed_relv*d/m1
+    di = speed_relv*d/ ( (m1**2+m2**2)/(2*m1) )
     
     sp1 = v1[0]*coll_dir[0]+v1[1]*coll_dir[1]
     sp2 = -v2[0]*coll_dir[0]-v2[1]*coll_dir[1]
     
-    p = m2/m1*(sp1 + sp2)
+    p = 2*m1*m2/(m1**2+m2**2)*(sp1 + sp2)
     
-    k1 = -p/2 + 0.5*np.sqrt(p**2+4*di)
-    k2 = -p/2 - 0.5*np.sqrt(p**2+4*di)
+    per = 2
+    if di > 0.25*p**2:
+        di = 0.25*p**2 - per
+#        pdb.set_trace()
+        
+    
+    
+    k1 = -p/2 + 0.5*np.sqrt(p**2-4*di)
+    k2 = -p/2 - 0.5*np.sqrt(p**2-4*di)
     
     
     if p < 0.0:
         k = k1  
     else:
         k = k2
+    v1_new = v1+k*coll_dir
+    v2_new = v2-k*coll_dir*m2/m1
     
+#    v1_new = np.round(v1_new)
+#    v2_new = np.round(v2_new)
+    
+#
+ 
+    
+    
+    #Algorithm to perserve kinetic energy due to round off error
+    speed1_b = np.sqrt(v1[0]**2+v1[1]**2)
+    speed2_b = np.sqrt(v2[0]**2+v2[1]**2)
+    K_b = 0.5*m1*speed1_b**2 + 0.5*m2*speed2_b**2
+    
+    
+    speed1_a = np.sqrt(v1_new[0]**2+v1_new[1]**2)
+    speed2_a = np.sqrt(v2_new[0]**2+v2_new[1]**2)
+    
+    K_a = 0.5*m1*speed1_a**2 + 0.5*m2*speed2_a**2
+    
+#    print(K_a)
+#    print(K_b)
+    
+#    if abs(K_a -K_b - di) > 1:
+#        print(K_a)
+#        print(K_b)
+#        pdb.set_trace()
+    
+    
+#    print(k1)
+#    print(k2)
+#    print(k)
+#    print('----------')
+    #pdb.set_trace()
     #Update the velocities of ball1 and ball2
     #I should not alter the attributes directly, but rather define set and get commands...
-    v1_new = v1+k*coll_dir
-    v2_new = v2-k*coll_dir*m1/m2
 
-    speed1 = np.sqrt(v1[0]**2+v1[1]**2)
-    speed2 = np.sqrt(v2[0]**2+v2[1]**2)
- 
+    
+
+
+#    v1_new_k1 = v1+k1*coll_dir
+#    v2_new_k1 = v2-k1*coll_dir*m1/m2
+#
+#    v1_new_k2 = v1+k2*coll_dir
+#    v2_new_k2 = v2-k2*coll_dir*m1/m2
+#
+#    speed1 = np.sqrt(v1[0]**2+v1[1]**2)
+#    speed2 = np.sqrt(v2[0]**2+v2[1]**2)
+#
+#
+#    speed1_k1 = np.sqrt(v1_new_k1[0]**2+v1_new_k1[1]**2)
+#    speed2_k1 = np.sqrt(v2_new_k1[0]**2+v2_new_k1[1]**2)
+#
+#    speed1_k2 = np.sqrt(v1_new_k2[0]**2+v1_new_k2[1]**2)
+#    speed2_k2 = np.sqrt(v2_new_k2[0]**2+v2_new_k2[1]**2)
+#
+#    if speed1_k1 < speed1:
+#        v1_new = v1_new_k1
+#    elif speed1_k2 < speed1 :
+#        v1_new = v1_new_k2
+#    else:
+#        print(speed1)
+#        print(speed1_k1)
+#        print(speed1_k2)
+#        
+#        if speed1_k1 < speed1_k2:
+#            v1_new = v1_new_k1
+#        else:
+#            v1_new = v1_new_k2
+#        
+##        pdb.set_trace()
+#
+#    if speed2_k1 < speed2:
+#        v2_new = v2_new_k1
+#    elif speed2_k2 < speed2:
+#        v2_new = v2_new_k2
+#    else:
+#        print(speed2)
+#        print(speed2_k1)
+#        print(speed2_k2)
+#        
+#        if speed1_k1 < speed1_k2:
+#            v2_new = v1_new_k1
+#        else:
+#            v2_new = v1_new_k2
+        
+        #pdb.set_trace()
 #    print(speed1)
 #    print(speed2)
 
@@ -116,8 +210,8 @@ def collision(ball1, ball2,d):
     ball1.speed = np.sqrt(v1_new[0]**2 + v1_new[1]**2 ) #Should be conserved when d = 0
     ball2.speed = np.sqrt(v2_new[0]**2 + v2_new[1]**2 ) # should be conserved when d = 0
     
-#    print(ball1.speed)
-#    print(ball2.speed)
+    print(ball1.speed)
+    print(ball2.speed)
     #Could actually be due to round off errors and the pixel size approach?
     
     ball1.veldir = v1_new/ball1.speed
@@ -130,7 +224,9 @@ def collision(ball1, ball2,d):
 #    print(k2)
 #    print(p)
 #    print(k)
-#    print('--------')
+#    pdb.set_trace()
+    print('--------')
+#    tm.sleep(10)
     #pdb.set_trace()
     
 #Main game:
@@ -145,6 +241,10 @@ clock = pygame.time.Clock()
 running = True
 
 coll_dissipation = 0
+nbr = 0
+
+coll_prevframe = [] #list of integers keeping track if balls were colliding in previous frame or not.
+
 
 while running:
         
@@ -160,8 +260,9 @@ while running:
             coords = np.array(pygame.mouse.get_pos())
             #print(coords)
             #pygame.draw.circle(screen, [0,0,255], coords, 25)
-            new_ball = Ball(coords, radius)
+            new_ball = Ball(coords, radius,nbr)
             balls.add(new_ball)
+            nbr +=1
 
     
     other_balls = balls.copy()
@@ -171,7 +272,7 @@ while running:
     for ball in balls:
         screen.blit(ball.surf,ball.rect)
         
-        totK += 0.5*ball.mass*ball.speed**2
+
         
         
         if len(other_balls) > 1:
@@ -179,15 +280,20 @@ while running:
             other_balls.remove(ball)
         
             for other_ball in other_balls:
-                if pygame.sprite.collide_circle(ball,other_ball): #Can not use groups with this one?
-                    
-                    collision(ball,other_ball,coll_dissipation) 
-                    
-                    
-                    
-                    #ball.speed = 0
-                    #other_ball.speed = 0
-            
+                i = ball.nbr
+                j = other_ball.nbr
+                
+                if pygame.sprite.collide_circle(ball,other_ball): #Can not use groups with this one?                    
+                    if [i,j] not in coll_prevframe:    
+                        collision(ball,other_ball,coll_dissipation) 
+                        coll_prevframe.append([i,j])
+                        
+
+                else:
+                    if [i,j] in coll_prevframe:
+                        coll_prevframe.remove([i,j])
+        
+        totK += 0.5*ball.mass*ball.speed**2
     
     print(totK)
     
