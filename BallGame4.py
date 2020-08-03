@@ -35,23 +35,26 @@ class Ball(pygame.sprite.Sprite):
         self.surf.fill([255,255,255])
         self.surf.set_colorkey([255,255,255], RLEACCEL) #Masks the white color. #which color is transparent. RLEACCEL optional, faster rendering on non-acclerated displays
         
-        self.coords = coords
         self.radius = radius
         self.rect = self.surf.get_rect(center = coords)
-        
+        self.coords = np.array(self.rect)        
         self.mass = 1
         
         #self.speed = random.randint(5,20)
-        self.speed = 15
+        self.speed = 10
         theta = random.uniform(0,np.pi*2)
+        #theta = 0
         self.veldir = np.array([np.cos(theta), np.sin(theta)])
         
     def update(self):
        
 
-        vel = self.speed*self.veldir 
+        vel = np.round(self.speed*self.veldir)
         self.rect.move_ip(vel) #Kanske blir avrundingsfel här? Bollar hamnar utanför skärmen ibland.
-        self.coords = self.coords + vel
+        
+        self.coords = np.round(np.array([self.rect[0]+(self.radius+1)/2, self.rect[1]+(self.radius+1)/2])) #Plus 1 or not on radius?
+        
+        #self.coords = self.coords + vel
 
         if self.coords[0]-self.radius < 0 or self.coords[0]+self.radius >= SCREEN_WIDTH:
             self.veldir[0] = -self.veldir[0]     
@@ -73,42 +76,49 @@ def collision(ball1, ball2,d):
     coll_dir = coll_dir/(np.sqrt(coll_dir[0]**2+coll_dir[1]**2))    
     
     #Solve second degree equation to compute magnitude of collision force
-    v1 = ball1.speed*ball1.veldir
-    v2 = ball2.speed*ball2.veldir
+    v1 = np.round(ball1.speed*ball1.veldir)
+    v2 = np.round(ball2.speed*ball2.veldir)
 
     relv = v2-v1
     speed_relv = np.sqrt(relv[0]**2+relv[1]**2)
-    di = speed_relv*d
+    
+    m1 = ball1.mass
+    m2 = ball2.mass
+    
+    di = speed_relv*d/m1
     
     sp1 = v1[0]*coll_dir[0]+v1[1]*coll_dir[1]
     sp2 = -v2[0]*coll_dir[0]-v2[1]*coll_dir[1]
     
-    p = (ball1.mass*sp1 + ball2.mass*sp2)
+    p = m2/m1*(sp1 + sp2)
     
     k1 = -p/2 + 0.5*np.sqrt(p**2+4*di)
     k2 = -p/2 - 0.5*np.sqrt(p**2+4*di)
     
     
     if p < 0.0:
-        k = np.max([k1,k2])    
+        k = k1  
     else:
-        k = np.min([k1,k2])
+        k = k2
     
     #Update the velocities of ball1 and ball2
     #I should not alter the attributes directly, but rather define set and get commands...
     v1_new = v1+k*coll_dir
-    v2_new = v2-k*coll_dir
+    v2_new = v2-k*coll_dir*m1/m2
 
-    print(ball1.speed)
-    print(ball2.speed)
+    speed1 = np.sqrt(v1[0]**2+v1[1]**2)
+    speed2 = np.sqrt(v2[0]**2+v2[1]**2)
+ 
+#    print(speed1)
+#    print(speed2)
 
 
     ball1.speed = np.sqrt(v1_new[0]**2 + v1_new[1]**2 ) #Should be conserved when d = 0
     ball2.speed = np.sqrt(v2_new[0]**2 + v2_new[1]**2 ) # should be conserved when d = 0
     
-    print(ball1.speed)
-    print(ball2.speed)
-
+#    print(ball1.speed)
+#    print(ball2.speed)
+    #Could actually be due to round off errors and the pixel size approach?
     
     ball1.veldir = v1_new/ball1.speed
     ball2.veldir = v2_new/ball2.speed    
@@ -119,7 +129,8 @@ def collision(ball1, ball2,d):
 #    print(k1)
 #    print(k2)
 #    print(p)
-    print('--------')
+#    print(k)
+#    print('--------')
     #pdb.set_trace()
     
 #Main game:
@@ -154,8 +165,14 @@ while running:
 
     
     other_balls = balls.copy()
+    
+    totK = 0
+    
     for ball in balls:
         screen.blit(ball.surf,ball.rect)
+        
+        totK += 0.5*ball.mass*ball.speed**2
+        
         
         if len(other_balls) > 1:
             
@@ -166,13 +183,16 @@ while running:
                     
                     collision(ball,other_ball,coll_dissipation) 
                     
+                    
+                    
                     #ball.speed = 0
                     #other_ball.speed = 0
             
     
-  
+    print(totK)
+    
     balls.update()
 
     
     pygame.display.flip()
-    clock.tick(30)
+    clock.tick(100)
