@@ -36,7 +36,7 @@ class Ball(pygame.sprite.Sprite):
         self.radius = random.randint(10,40)
         
 
-        self.mass = self.radius*10
+        self.mass = self.radius**2
 
         
         self.surf = pygame.Surface([2*self.radius,2*self.radius])
@@ -144,7 +144,7 @@ balls = pygame.sprite.Group()
 clock = pygame.time.Clock()
 running = True
 
-coll_dissipation = 10
+coll_dissipation = 100
 nbr = 0
 
 coll_prevframe = [] #list of integers keeping track if balls were colliding in previous frame or not.
