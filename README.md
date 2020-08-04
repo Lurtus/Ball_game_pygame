@@ -8,8 +8,17 @@ Purpose is to learn more about pygame, hande mouse events, start using object or
 #4. Make ball bounce against other balls (need to think about collision algorithm)
 #5. Use mouse (press and hold) to set initial speed and direction of ball
 
+#6. Add Buttons to control mass/radius and dissipation. Link pygame together with PyQt?
+#7. Optional, add new windows after winning/losing?
+#8. Optional, add Walls/Lines into the game (by right clicking?)
+#9. Optional make it possible to win through some goal?(Pool game?)
 
-#6. Optional, add obstacles into game
-#7. Optional make it possible to win through some goal?(Pool game?)
-#8. Optional, add new windows after winning/losing?
-#9. Add Buttons to control mass/speed etc. Link pygame together with PyQt?
+--> Move on to N-Body project
+
+--> Move on to deformable objects (beam theory?) project (s) (?)
+
+--> Move on to X-code/making apps for iphone. (?)
+
+--> Move on to openGL projects?
+
+-- Move on to server/online/multiple computers based projects?
