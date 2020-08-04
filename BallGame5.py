@@ -185,10 +185,15 @@ while running:
             else:
                 pygame.draw.line(screen, [0,0,0], coords, mousepos_old,2)
                 veldir_init = mousepos_old-coords
+
                 speed_init = np.sqrt(veldir_init[0]**2+veldir_init[1]**2)
     
             veldir_init_ball = veldir_init/speed_init
             speed_init_ball = speed_init/4
+    
+            if speed_init_ball < 4:
+                speed_init_ball = 0
+    
     
     other_balls = balls.copy()
     
