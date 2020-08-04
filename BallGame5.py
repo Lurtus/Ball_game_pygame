@@ -35,8 +35,9 @@ class Ball(pygame.sprite.Sprite):
         
         self.radius = random.randint(10,40)
         
-        #self.radius = 25
-        self.mass = self.radius
+
+        self.mass = self.radius*10
+
         
         self.surf = pygame.Surface([2*self.radius,2*self.radius])
         self.surf.fill([255,255,255])
@@ -98,19 +99,19 @@ def collision(ball1, ball2,d):
     m1 = ball1.mass
     m2 = ball2.mass
     
-    di = (m1+m2)*speed_relv*d*( 2*m1/(m1*m2+m2**2)) 
+    di = d*(m1+m2)*speed_relv*8/(m1*m2*(m1+m2))
     
     sp1 = v1[0]*coll_dir[0]+v1[1]*coll_dir[1]
     sp2 = -v2[0]*coll_dir[0]-v2[1]*coll_dir[1]
     
-    p = 2*m1/(m1+m2)*(sp1 + sp2)
+    p = 2/(m1+m2)*(sp1 + sp2)
     
-    if di > 0.25*p**2: #To prevent complex roots. What does complex roots imply?
-        di = (1-1e-6)*0.25*p**2
+    if di > p**2: #To prevent complex roots. What does complex roots imply?
+        di = (1-1e-6)*p**2
 #        pdb.set_trace()
         
-    k1 = -p/2 + 0.5*np.sqrt(p**2-4*di)
-    k2 = -p/2 - 0.5*np.sqrt(p**2-4*di)
+    k1 = -p/2 + 0.5*np.sqrt(p**2-di)
+    k2 = -p/2 - 0.5*np.sqrt(p**2-di)
 
     if p < 0.0:
         k = k1  
@@ -118,15 +119,19 @@ def collision(ball1, ball2,d):
         k = k2
         
     
-    v1_new = v1+k*coll_dir
-    v2_new = v2-k*coll_dir*m2/m1
+    v1_new = v1+k*m2*coll_dir
+    v2_new = v2-k*m1*coll_dir
     
     ball1.speed = np.sqrt(v1_new[0]**2 + v1_new[1]**2 ) 
     ball2.speed = np.sqrt(v2_new[0]**2 + v2_new[1]**2 )
         
     ball1.veldir = v1_new/ball1.speed
     ball2.veldir = v2_new/ball2.speed    
-        
+    
+#    print(p)
+#    print(k1)
+#    print(k2)
+#    print(k)
     
 #Main game:
 
