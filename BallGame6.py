@@ -141,7 +141,11 @@ balls = pygame.sprite.Group()
 clock = pygame.time.Clock()
 
 
-massSlider = thorpy.SliderX(40, [10,50], 'Mass slider             ', type_=int)
+
+maxMass = 100
+minMass = 10
+
+massSlider = thorpy.SliderX(maxMass-minMass, [minMass,maxMass], 'Mass slider             ', type_=int)
 massSlider.set_font_size(14)
 quitButton = thorpy.make_button('Quit', func = thorpy.functions.quit_func)
 quitButton.set_font_size(14)
@@ -161,8 +165,7 @@ box.set_topleft([SCREEN_WIDTH/2-box_xsize,SCREEN_HEIGHT-(SCREEN_HEIGHT-PLAYCREEN
 
 thorpy.store(box, mode='h', align='bottom', gap=25)
 
-box.blit()
-box.update()
+
 
 running = True
 
@@ -175,12 +178,16 @@ speed_init = 1
 
 screen.fill([255,255,255])  
 pygame.draw.line(screen, [0,0,0], [0,PLAYCREEN_HEIGHT], [SCREEN_WIDTH,PLAYCREEN_HEIGHT],2)
-
+box.blit()
+#box.update()
 
 while running:
     
     screen.fill([255,255,255])  
     pygame.draw.line(screen, [0,0,0], [0,PLAYCREEN_HEIGHT], [SCREEN_WIDTH,PLAYCREEN_HEIGHT],2)
+    box.blit()
+    #box.update() #This line is not needed for this program
+
     
     for event in pygame.event.get():
         
@@ -265,5 +272,5 @@ while running:
     
     balls.update()
     pygame.display.flip()
-    menu.blit_and_update()
+    #menu.blit_and_update()
     clock.tick(40)
