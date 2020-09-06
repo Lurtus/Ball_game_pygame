@@ -37,7 +37,8 @@ class Ball(pygame.sprite.Sprite):
         self.mass = self.radius**2        
         self.surf = pygame.Surface([2*self.radius,2*self.radius])
         self.surf.fill([255,255,255])
-        self.surf.set_colorkey([255,255,255], RLEACCEL) #Masks the white color. #which color is transparent. RLEACCEL optional, faster rendering on non-acclerated displays
+        #self.surf.set_colorkey([255,255,255], RLEACCEL) #Masks the white color. #which color is transparent. RLEACCEL optional, faster rendering on non-acclerated displays
+        self.surf.set_colorkey([255,255,255])
         
         self.rect = self.surf.get_rect(center = coords)
         self.coords = coords     #This one refers to top left point of surf! (even when I used center above...) 
@@ -58,7 +59,7 @@ class Ball(pygame.sprite.Sprite):
         
         vel = self.speed*self.veldir
         self.coords = self.coords + vel
-        self.rect.move_ip([self.coords[0]-self.rect.x,self.coords[1]-self.rect.y   ])
+        self.rect.move_ip([ int(np.round(self.coords[0]-self.rect.x)),int(np.round(self.coords[1]-self.rect.y)  ) ])
 
         if self.coords[0] < 0:
             self.veldir[0] = np.abs(self.veldir[0])
