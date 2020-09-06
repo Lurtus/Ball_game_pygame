@@ -52,7 +52,7 @@ class Ball(pygame.sprite.Sprite):
 
         self.nbr = nbr
         
-    def update(self):
+    def update(self, d):
 
         if self.speed < 0.5:
             self.speed = 0
@@ -61,17 +61,28 @@ class Ball(pygame.sprite.Sprite):
         self.coords = self.coords + vel
         self.rect.move_ip([ int(np.round(self.coords[0]-self.rect.x)),int(np.round(self.coords[1]-self.rect.y)  ) ])
 
+        hitwall = False
+
         if self.coords[0] < 0:
             self.veldir[0] = np.abs(self.veldir[0])
+            hitwall = True
+            
             
         if self.coords[0]+self.radius*2 >= SCREEN_WIDTH:
-            self.veldir[0] = -np.abs(self.veldir[0])   
+            self.veldir[0] = -np.abs(self.veldir[0])
+            hitwall = True
         
         if self.coords[1] < 0:
             self.veldir[1] = np.abs(self.veldir[1])
+            hitwall = True
             
         if self.coords[1]+self.radius*2 >= PLAYCREEN_HEIGHT:
             self.veldir[1] = -np.abs(self.veldir[1])
+            hitwall = True
+
+
+        if hitwall:
+            self.speed = self.speed*self.mass**(-1/d)
             
         self.surf.fill([255,255,255]) 
         pygame.draw.circle(self.surf, [0,0,255],[self.radius,self.radius], self.radius)
@@ -142,7 +153,7 @@ clock = pygame.time.Clock()
 
 
 
-maxMass = 100
+maxMass = 75
 minMass = 10
 
 massSlider = thorpy.SliderX(maxMass-minMass, [minMass,maxMass], 'Mass slider             ', type_=int)
@@ -170,6 +181,7 @@ thorpy.store(box, mode='h', align='bottom', gap=25)
 running = True
 
 coll_dissipation = 100
+wall_disspation_factor = 20
 nbr = 0
 
 coll_prevframe = [] #list of integers keeping track if balls were colliding in previous frame or not.
@@ -270,7 +282,9 @@ while running:
     
     #print(totK)
     
-    balls.update()
+    balls.update(wall_disspation_factor)
     pygame.display.flip()
     #menu.blit_and_update()
     clock.tick(40)
+    
+pygame.quit()
